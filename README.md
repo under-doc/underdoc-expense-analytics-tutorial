@@ -1,6 +1,6 @@
-# UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images
+# UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images (Part 1)
 
-- [UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images](#underdoc-tutorial---expense-analytics-using-metabase-and-llm-with-receiptinvoice-images)
+- [UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images (Part 1)](#underdoc-tutorial---expense-analytics-using-metabase-and-llm-with-receiptinvoice-images-part-1)
   - [Introduction](#introduction)
   - [Overview](#overview)
   - [Prerequisite](#prerequisite)
@@ -459,7 +459,7 @@ Select the database type "SQLite".
 
 ![Metabase sqlite](images/metabase-sqlite.png)
 
-In the next page, enter the SQLite DB information. For display name, you can enter whatever you like. For filename, enter "/metabase-data/underdoc.db" which is the SQLite DB file we use, and was mounted to the Metabase's container. The following shows the screen shot.
+In the next page, enter the SQLite DB information. For display name, enter "MyExpense". For filename, enter "/metabase-data/underdoc.db" which is the SQLite DB file we use, and was mounted to the Metabase's container. The following shows the screen shot.
 
 ![Metabase sqlite](images/metabase-sqlite-connection.png)
 
@@ -515,7 +515,7 @@ The you will be able to see the chart, which is by expense category (x-axis), an
 
 ![count by expense category](images/count-by-expense-category.png)
 
-Suppose we want to see the amount instead of transactions. Click into the "Editor" button to enter the chart editor.
+Suppose we want to see the amount instead of transactions count. Click into the "Editor" button to enter the chart editor.
 
 ![count by expense category editor](images/count-by-expense-category-editor.png)
 
@@ -531,7 +531,7 @@ Click "Visualize" to view the chart.
 
 ![amount by expense category](images/amount-by-expense-category.png)
 
-You will be able to see the distribution of amount by category, which is inferred by LLM.
+You will be able to see the distribution of amount by categories, which are inferred by UnderDoc's LLM during strutured output extraction from expense images.
 
 You can save this chart, put it into your own dashboard, or share it with others. Metabase has so many features that I am simply not able to cover.
 
@@ -568,9 +568,9 @@ The model class inherit the SQLModel class from the Python package ["sqlmodel"](
 
 ### main.py
 
-This is the Python script and the highlevel flow is:
+This is the main Python script that runs the whole process and the highlevel flow is:
 
-- By processing the files in the path IMAGE_FILE_PATTERN, invoke UnderDoc's SDK to extract the data from image files in batch mode (the function extract_expense_data_from_images())
+- Read the expense image files in the path IMAGE_FILE_PATTERN, invoke UnderDoc's SDK to extract the data from image files in batch mode (the function extract_expense_data_from_images())
 - Create a session to the target SQLite DB
 - For each expense item extracted in the response, get the fields we want and construct an instance of the class MyExpense, and then add the record to the database session
 - Finally, commit the session, which will persist the records into the database
@@ -643,6 +643,6 @@ if __name__ == "__main__":
     extract_expense_data_to_db()
 ```
 
-I hope you will find this tutorial interesting and helpful. If you have any comments or questions, please feel free to contact me and I am very happy in answering!
+I hope you will find this tutorial interesting and helpful. If you have any comments or questions, please feel free to contact me (<clarence@underdoc.io>) and I am very happy in answering!
 
 I also plan to create Part 2 of this tutorial, which use another container tool (Podman) and database (PostgreSQL), which provides more features like edit the data directly from Metabase. Stay tuned.
