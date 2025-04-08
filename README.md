@@ -1,6 +1,6 @@
-# UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images
+# UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images (Part 1)
 
-- [UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images](#underdoc-tutorial---expense-analytics-using-metabase-and-llm-with-receiptinvoice-images)
+- [UnderDoc Tutorial - Expense Analytics using Metabase and LLM with receipt/invoice images (Part 1)](#underdoc-tutorial---expense-analytics-using-metabase-and-llm-with-receiptinvoice-images-part-1)
   - [Introduction](#introduction)
   - [Overview](#overview)
   - [Prerequisite](#prerequisite)
@@ -26,6 +26,8 @@
     - [Overview of Expense Data](#overview-of-expense-data)
     - [Expense Analytics like a Pro](#expense-analytics-like-a-pro)
   - [Python Code Explanation](#python-code-explanation)
+    - [model.py](#modelpy)
+    - [main.py](#mainpy)
 
 ---
 
@@ -457,7 +459,7 @@ Select the database type "SQLite".
 
 ![Metabase sqlite](images/metabase-sqlite.png)
 
-In the next page, enter the SQLite DB information. For display name, you can enter whatever you like. For filename, enter "/metabase-data/underdoc.db" which is the SQLite DB file we use, and was mounted to the Metabase's container. The following shows the screen shot.
+In the next page, enter the SQLite DB information. For display name, enter "MyExpense". For filename, enter "/metabase-data/underdoc.db" which is the SQLite DB file we use, and was mounted to the Metabase's container. The following shows the screen shot.
 
 ![Metabase sqlite](images/metabase-sqlite-connection.png)
 
@@ -477,12 +479,170 @@ You will then able to see the home page of Metabase, include the "Myexpense" dat
 
 ### Overview of Expense Data
 
-TODO
+From the Home page, you will notice a button called "A look at Myexpense", which is some default explorations provided by Metabase by looking at the database tables and schema. When you click into it. You will be able to see some default metrics presented in various cards and charts.
+
+For example, count of expenses by various date time criteria (day of week, month of year, quarter of year, date), and total amount over time, etc.
+
+In the lower part of the page, you will see charts with various grouping criteria. Those including amount range, image type (receipt/invoice), and currency, etc.
+
+![A look at myexpense](images/a-look-at-myexpense.png)
 
 ### Expense Analytics like a Pro
 
-TODO
+Metabase is a powerful tools that enables you to perform many forms of grouping, filtering and drill down.
+
+For example, I would like to view my expense distribution among various categories, focus in HKD (Hong Kong dollars).
+
+First of all, we can scroll down to the chart "Myexpense per Currency". Mouse over the bar "HKD", and you can see there are totally 9 transactions.
+
+![myexpense per currency](images/myexpense-per-currency.png)
+
+Now click onto the bar. A pop-up menu will display, like the one below.
+
+![myexpense per currency drop down menu](images/myexpense-per-currency-drop-down-menu.png)
+
+Click the "Break out by" button to perform analytics on HKD expenses.
+
+At the next drop down menu, select to break down by expense category.
+
+![myexpense per currency by category](images/myexpense-per-currency-by-category.png)
+
+At the next drop down menu, select "Expense Category".
+
+![myexpense per currency by expense category](images/myexpense-per-currency-by-expense-category.png)
+
+The you will be able to see the chart, which is by expense category (x-axis), and then by number of expenses (y-axis).
+
+![count by expense category](images/count-by-expense-category.png)
+
+Suppose we want to see the amount instead of transactions count. Click into the "Editor" button to enter the chart editor.
+
+![count by expense category editor](images/count-by-expense-category-editor.png)
+
+In the "Summarize" section, add Sum of "Total Amount", and delete "Count".
+
+![count by expense category editor 1](images/count-by-expense-category-editor-1.png)
+
+The following is the result screenshot.
+
+![count by expense category editor 2](images/count-by-expense-category-editor-2.png)
+
+Click "Visualize" to view the chart.
+
+![amount by expense category](images/amount-by-expense-category.png)
+
+You will be able to see the distribution of amount by categories, which are inferred by UnderDoc's LLM during strutured output extraction from expense images.
+
+You can save this chart, put it into your own dashboard, or share it with others. Metabase has so many features that I am simply not able to cover.
+
+If you want to see details of each expense, you can also click "See this Myexpenses" when mouse over a particular bar in a chart.
+
+![hkd expense list](images/hkd-expenses-list.png)
 
 ## Python Code Explanation
 
-TODO
+Finally, would like to give you an overview of the Python code in this tutorial.
+
+### model.py
+
+In this file, we defined a model class named "MyExpense", which include the fields we want to be stored into the database.
+
+```python
+from sqlmodel import Field, SQLModel
+from datetime import datetime
+from typing import Optional
+
+class MyExpense(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    date: datetime = Field(..., description="The date of the expense")
+    expense_type: str = Field(..., description="The type of the expense")
+    shop_name: str = Field("", description="The name of the shop")
+    shop_address: str = Field("", description="The address of the shop")
+    expense_category: str = Field(..., description="The category of the expense")
+    currency: str = Field(..., description="The currency of the expense")
+    total_amount: float = Field(..., description="The total amount of the expense")
+    source_file_name: str = Field("", description="The source file name")
+```
+
+The model class inherit the SQLModel class from the Python package ["sqlmodel"](https://sqlmodel.tiangolo.com/), which use ["Pydantic"](https://docs.pydantic.dev/latest/) and ["SQLAlchemy"](https://www.sqlalchemy.org/) behind the scene.
+
+### main.py
+
+This is the main Python script that runs the whole process and the highlevel flow is:
+
+- Read the expense image files in the path IMAGE_FILE_PATTERN, invoke UnderDoc's SDK to extract the data from image files in batch mode (the function extract_expense_data_from_images())
+- Create a session to the target SQLite DB
+- For each expense item extracted in the response, get the fields we want and construct an instance of the class MyExpense, and then add the record to the database session
+- Finally, commit the session, which will persist the records into the database
+
+```python
+from underdoc import underdoc_client, ExpenseExtractionBatchResponse
+from model import MyExpense
+from sqlmodel import SQLModel, create_engine, Session
+from datetime import datetime
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Running configurations
+IMAGE_FILE_PATTERN = "receipt-images/*.*"
+DB_FILE = "metabase-data/underdoc.db"
+
+def extract_expense_data_from_images() -> ExpenseExtractionBatchResponse:
+    logger.info("Extracting expense data from images - will take some time")
+    # Remember to set the API key in the environment variable (export UNDERDOC_API_KEY=<your_api_key>)
+    client = underdoc_client.Client()
+
+    response = client.expense_image_batch_extract(
+        file_name_pattern=IMAGE_FILE_PATTERN
+    )
+
+    logger.info(f"Extracted expense data from images completed successfully")
+
+    return response
+
+def extract_expense_data_to_db():
+    logger.info("Extracting expense data and persist to DB")
+
+    expense_batch_response = extract_expense_data_from_images()
+
+    # Save expense data to DB
+    engine = create_engine(f"sqlite:///{DB_FILE}")
+
+    SQLModel.metadata.create_all(engine)
+
+    with Session(engine) as session:
+        for expense_with_source in expense_batch_response.expense_data_list:
+            # Handle empty date
+            if expense_with_source.expense_data.expense.date == '':
+                expense_date = datetime.now()
+            else:
+                expense_date=datetime.fromisoformat(expense_with_source.expense_data.expense.date.replace("Z", "+00:00"))
+            expense_data = MyExpense(
+                date=expense_date,
+                expense_type=expense_with_source.expense_data.image_type,
+                shop_name=expense_with_source.expense_data.expense.shop_name,
+                shop_address=expense_with_source.expense_data.expense.shop_address,
+                expense_category=expense_with_source.expense_data.expense.expense_category,
+                currency=expense_with_source.expense_data.expense.currency,
+                total_amount=expense_with_source.expense_data.expense.total_amount,
+                source_file_name=expense_with_source.source_file_name
+            )
+            session.add(expense_data)
+        
+        session.commit()
+
+    logger.info("Expense data saved to DB")
+
+if __name__ == "__main__":
+    logger.info("UnderDoc Tutorial - Extract expense data from imagesand persist to DB")
+    extract_expense_data_to_db()
+```
+
+I hope you will find this tutorial interesting and helpful. If you have any comments or questions, please feel free to contact me (<clarence@underdoc.io>) and I am very happy in answering!
+
+I also plan to create Part 2 of this tutorial, which use another container tool (Podman) and database (PostgreSQL), which provides more features like edit the data directly from Metabase. Stay tuned.
