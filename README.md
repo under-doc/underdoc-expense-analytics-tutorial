@@ -44,7 +44,7 @@ If the above is what you want to do, then this tutorial is for you!
 
 This is a step-by-step tutorial to guide you through the process of extracting data from expense images, persist it into a local database, and analyze it with charts by dynamic criteria.
 
-You need to have the following in order to be able to run through this tutotial:
+You need to have the following in order to be able to run through this tutorial:
 
 - A laptop or desktop running MacOS
 - Python (3.12 or above)
