@@ -51,7 +51,7 @@ You need to have the following in order to be able to run through this tutotial:
 - Docker (for running Metabase)
 - Sqlite DB
 
-This tutotial tries to make the process as simple as possible, and suitable for users with less technical experience.
+This tutorial tries to make the process as simple as possible, and suitable for users with less technical experience.
 
 ## Overview
 
@@ -121,7 +121,7 @@ The expense data extracted will be persisted to SQLite DB locally. We will use S
 brew install sqlite
 ```
 
-This consludes all prerequisites, let's proceed to environment setup!
+This concludes all prerequisites, let's proceed to environment setup!
 
 ## Environment Setup
 
@@ -531,7 +531,7 @@ Click "Visualize" to view the chart.
 
 ![amount by expense category](images/amount-by-expense-category.png)
 
-You will be able to see the distribution of amount by categories, which are inferred by UnderDoc's LLM during strutured output extraction from expense images.
+You will be able to see the distribution of amount by categories, which are inferred by UnderDoc's LLM during structured output extraction from expense images.
 
 You can save this chart, put it into your own dashboard, or share it with others. Metabase has so many features that I am simply not able to cover.
 
@@ -568,7 +568,7 @@ The model class inherit the SQLModel class from the Python package ["sqlmodel"](
 
 ### main.py
 
-This is the main Python script that runs the whole process and the highlevel flow is:
+This is the main Python script that runs the whole process and the high-level flow is:
 
 - Read the expense image files in the path IMAGE_FILE_PATTERN, invoke UnderDoc's SDK to extract the data from image files in batch mode (the function extract_expense_data_from_images())
 - Create a session to the target SQLite DB
