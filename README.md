@@ -42,7 +42,7 @@ Do you have a bunch of receipts (or invoice, demand-notes, etc.) from various so
 
 If the above is what you want to do, then this tutorial is for you!
 
-This is a step-by-step tutorial to guide you through the process of extracting data from expense images, persist it into a local database, and analyse it with charts by dynamic criterias.
+This is a step-by-step tutorial to guide you through the process of extracting data from expense images, persist it into a local database, and analyze it with charts by dynamic criteria.
 
 You need to have the following in order to be able to run through this tutotial:
 
@@ -65,7 +65,7 @@ This tutorial use the following components for various tasks:
 
 ### Get an UnderDoc API Key
 
-The key step in this tutorial is to extract the expense information from images into structured data (e.g. shop name, amount, currency, inferred category, etc.) that is suitable for storing into a database for exploration. We will use [UnderDoc](https://underdoc.io), which is a cost effective platform (with a free tier) in performing this task. This tool also works well with multi-language images.
+The key step in this tutorial is to extract the expense information from images into structured data (e.g. shop name, amount, currency, inferred category, etc.) that is suitable for storing into a database for exploration. We will use [UnderDoc](https://underdoc.io), which is a cost-effective platform (with a free tier) in performing this task. This tool also works well with multi-language images.
 
 Using UnderDoc is simple, just signup at their developer portal and get an API key.
 
@@ -133,7 +133,7 @@ All the Python scripts required, and some sample images were provided by this tu
 git clone https://github.com/under-doc/underdoc-expense-analytics-tutorial.git
 ```
 
-One cloned, change directory into the project folder. For example, my folder is as follows:
+Once cloned, change directory into the project folder. For example, my folder is as follows:
 
 ```bash
 /Users/clarenceho/workspace/underdoc/underdoc-expense-analytics-tutorial
@@ -489,7 +489,7 @@ In the lower part of the page, you will see charts with various grouping criteri
 
 ### Expense Analytics like a Pro
 
-Metabase is a powerful tools that enables you to perform many forms of grouping, filtering and drill down.
+Metabase is a powerful tool that enables you to perform many forms of grouping, filtering and drill down.
 
 For example, I would like to view my expense distribution among various categories, focus in HKD (Hong Kong dollars).
 
@@ -541,7 +541,7 @@ If you want to see details of each expense, you can also click "See this Myexpen
 
 ## Python Code Explanation
 
-Finally, would like to give you an overview of the Python code in this tutorial.
+Finally, I would like to give you an overview of the Python code in this tutorial.
 
 ### model.py
 
@@ -643,6 +643,6 @@ if __name__ == "__main__":
     extract_expense_data_to_db()
 ```
 
-I hope you will find this tutorial interesting and helpful. If you have any comments or questions, please feel free to contact me (<clarence@underdoc.io>) and I am very happy in answering!
+I hope you will find this tutorial interesting and helpful. If you have any comments or questions, please feel free to contact me (<clarence@underdoc.io>) and I am very happy to answer!
 
 I also plan to create Part 2 of this tutorial, which use another container tool (Podman) and database (PostgreSQL), which provides more features like edit the data directly from Metabase. Stay tuned.
